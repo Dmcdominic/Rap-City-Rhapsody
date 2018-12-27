@@ -36,10 +36,8 @@ public class story_display : MonoBehaviour {
 			return;
 		}
 
-		// Reset the timer
+		// Reset the timer and clear options
 		reset_timer();
-
-		// First, clear all existing options
 		clear_options();
 
 		// Display the description
@@ -48,18 +46,35 @@ public class story_display : MonoBehaviour {
 		// Use helper function(s) to display class-specific components
 		if (element is fork) {
 			display_fork_helper((fork)element);
+		} else if (element is extension) {
+			display_extension_helper((extension)element);
 		}
 	}
 
 	// Helper function to display the fork-specific components
 	private void display_fork_helper(fork element) {
 		foreach (string option in element.options.Keys) {
-			Button new_button = Instantiate(option_prefab);
-			new_button.transform.SetParent(options_parent.transform);
-			new_button.gameObject.SetActive(true);
+			create_button(option, element.options[option]);
+		}
+	}
 
+	// Helper function to display the extension-specific components
+	private void display_extension_helper(extension element) {
+		// This can be improved to look better. Just a big ol' continue button right now.
+		create_button("Continue...", element.continue_to);
+	}
+
+	private void create_button(string option, story_element element) {
+		Button new_button = Instantiate(option_prefab);
+		new_button.transform.SetParent(options_parent.transform);
+		new_button.gameObject.SetActive(true);
+
+		if (element) {
 			new_button.GetComponentInChildren<Text>().text = option;
-			new_button.onClick.AddListener(option_listener(option, element.options[option]));
+			new_button.onClick.AddListener(option_listener(option, element));
+		} else {
+			new_button.GetComponentInChildren<Text>().text = option + " [Not implemented]";
+			new_button.interactable = false;
 		}
 	}
 
